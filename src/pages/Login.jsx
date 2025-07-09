@@ -38,7 +38,7 @@ const Login = () => {
         toast.success("Logged in with Google!");
         setTimeout(() => navigate("/dashboard"), 1000);
       })
-      .catch((error) => toast.error(error.message))
+      .catch((error) => toast.error("Pop up closed by user"))
       .finally(() => setLoading(false));
   };
 
