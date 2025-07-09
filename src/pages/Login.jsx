@@ -75,6 +75,22 @@ const Login = () => {
           >
             Log In
           </button>
+          <div className="text-sm">
+            Not a user?{" "}
+            <NavLink to="/" className="text-blue-600 hover:underline">
+              Click to Sign up
+            </NavLink>
+          </div>
+
+          <div className="text-sm">
+            Forgot your password?{" "}
+            <NavLink
+              to="/Forgote"
+              className="text-blue-600 hover:underline"
+            >
+              Reset here
+            </NavLink>
+          </div>
 
           <div className="text-center text-gray-500 font-semibold">— OR —</div>
 
@@ -92,12 +108,6 @@ const Login = () => {
               Continue with Google
             </span>
           </button>
-          <div className="text-center">
-            Not a user?{" "}
-            <NavLink to="/" className="text-blue-600 hover:underline">
-              Click to Signup
-            </NavLink>
-          </div>
         </form>
       </div>
     </div>
