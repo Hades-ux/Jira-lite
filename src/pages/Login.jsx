@@ -1,8 +1,14 @@
 import { useState } from "react";
 import Bg from "../assets/background.png";
 import { app } from "../firebase/firebase";
-import {getAuth,signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,} from "firebase/auth";
-import { NavLink } from "react-router-dom";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -10,27 +16,30 @@ const provider = new GoogleAuthProvider();
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const logIn = (e) => {
     e.preventDefault();
+    setLoading(true);
     signInWithEmailAndPassword(auth, email, password)
-      .then((value) => {
-        alert("Login successful!");
-        console.log(value.user);
+      .then(() => {
+        toast.success("Login successful!");
+        setTimeout(() => navigate("/dashboard"), 1000);
       })
-      .catch((err) => alert(err.message));
+      .catch((err) => toast.error("wrong Id/Password"))
+      .finally(() => setLoading(false));
   };
 
   const loginWithGoogle = () => {
+    setLoading(true);
     signInWithPopup(auth, provider)
-      .then((result) => {
-        alert("Logged in with Google!");
-        console.log(result.user);
+      .then(() => {
+        toast.success("Logged in with Google!");
+        setTimeout(() => navigate("/dashboard"), 1000);
       })
-      .catch((error) => {
-        alert(error.message);
-        console.error(error);
-      });
+      .catch((error) => toast.error(error.message))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -40,9 +49,11 @@ const Login = () => {
     >
       <div className="w-[25rem] h-[35rem] bg-white shadow-2xl rounded-lg">
         <h1 className="text-4xl text-center p-4 text-indigo-700 font-bold">
-          🌐 Jira Lite
+          Jira Lite
         </h1>
-        <h4 className="text-center p-1 font-semibold">Log in to continue</h4>
+        <h4 className="text-center p-1 pt-0 font-semibold">
+          Log in to continue
+        </h4>
 
         <form onSubmit={logIn} className="space-y-4 px-6 pt-4">
           <div className="flex flex-col gap-2">
@@ -71,10 +82,14 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-md transition duration-300"
+            disabled={loading}
+            className={`w-full bg-indigo-600 text-white font-semibold py-3 rounded-md transition duration-300 ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-indigo-700"
+            }`}
           >
-            Log In
+            {loading ? "Logging in..." : "Log In"}
           </button>
+
           <div className="text-sm">
             Not a user?{" "}
             <NavLink to="/" className="text-blue-600 hover:underline">
@@ -82,13 +97,13 @@ const Login = () => {
             </NavLink>
           </div>
 
-          <div className="text-sm">
-            Forgot your password?{" "}
-            <NavLink
-              to="/Forgote"
-              className="text-blue-600 hover:underline"
-            >
-              Reset here
+          <div className="flex items-center justify-center text-sm space-x-2">
+            <NavLink to="/Forgote" className="text-blue-600 hover:underline">
+              Can't log in?
+            </NavLink>
+            <span className="text-gray-400">|</span>
+            <NavLink to="/" className="text-blue-600 hover:underline">
+              Create an account
             </NavLink>
           </div>
 
@@ -97,7 +112,10 @@ const Login = () => {
           <button
             type="button"
             onClick={loginWithGoogle}
-            className="w-full flex items-center justify-center gap-3 bg-gray-200 border border-gray-300 py-2 rounded-md hover:shadow-md transition cursor-pointer"
+            disabled={loading}
+            className={`w-full flex items-center justify-center gap-3 bg-gray-200 border border-gray-300 py-2 rounded-md transition cursor-pointer ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"
+            }`}
           >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"

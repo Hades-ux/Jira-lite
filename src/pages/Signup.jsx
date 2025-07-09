@@ -2,8 +2,14 @@ import { useState } from "react";
 import logo from "../assets/jira-logo.png";
 import horizontalLogo from "../assets/Atlassian logo neutral RGB 2x.png";
 import { app } from "../firebase/firebase";
-import {getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider,} from "firebase/auth";
-import { NavLink } from "react-router-dom";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -11,32 +17,36 @@ const provider = new GoogleAuthProvider();
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const signupUser = (e) => {
+  const signupUser = async (e) => {
     e.preventDefault();
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((value) => {
-        console.log("User signed up:", value.user);
-        alert("Signup successful!");
-      })
-      .catch((err) => {
-        console.error(err);
-        alert(err.message);
-      });
-      setEmail("")
-      setPassword("")
+    setLoading(true);
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      toast.success("Signup successful!");
+      setEmail("");
+      setPassword("");
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const signupWithGoogle = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Signed in with Google:", result.user);
-        alert("Signed up successfully with Google!");
-      })
-      .catch((error) => {
-        console.error(error);
-        alert(error.message);
-      });
+  const signupWithGoogle = async () => {
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, provider);
+      toast.success("Signed up successfully with Google!");
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,28 +68,6 @@ const Signup = () => {
         <h1 className="text-2xl font-bold text-center">
           Get started with Jira
         </h1>
-
-        <button
-          type="button"
-          onClick={signupWithGoogle}
-          className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 py-2 rounded-md hover:shadow-md transition"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          <span className="text-sm font-medium text-gray-700">
-            Continue with Google
-          </span>
-        </button>
-
-        <div className="relative text-center">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative bg-white px-4 text-sm text-gray-500">or</div>
-        </div>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="email" className="text-sm font-medium">
@@ -113,9 +101,32 @@ const Signup = () => {
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md cursor-pointer hover:bg-indigo-700 transition"
+          disabled={loading}
+          className={`w-full bg-indigo-600 text-white font-semibold py-3 rounded-md transition ${
+            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-indigo-700"
+          }`}
         >
-          Sign up
+          {loading ? "Signing up..." : "Sign up"}
+        </button>
+
+        <div className="text-center text-gray-500 font-semibold">— OR —</div>
+
+        <button
+          type="button"
+          onClick={signupWithGoogle}
+          disabled={loading}
+          className={`w-full flex items-center justify-center gap-2 bg-white border border-gray-300 py-2 rounded-md transition ${
+            loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"
+          }`}
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            Continue with Google
+          </span>
         </button>
 
         <p className="text-xs text-center text-gray-500">
