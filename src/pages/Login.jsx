@@ -1,12 +1,7 @@
 import { useState } from "react";
 import Bg from "../assets/background.png";
 import { app } from "../firebase/firebase";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
+import {getAuth,signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup} from "firebase/auth";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -25,7 +20,7 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         toast.success("Login successful!");
-        setTimeout(() => navigate("/dashboard"), 1000);
+        setTimeout(() => navigate("/Project"), 1000);
       })
       .catch((err) => toast.error("wrong Id/Password"))
       .finally(() => setLoading(false));
@@ -36,7 +31,7 @@ const Login = () => {
     signInWithPopup(auth, provider)
       .then(() => {
         toast.success("Logged in with Google!");
-        setTimeout(() => navigate("/dashboard"), 1000);
+        setTimeout(() => navigate("/project"), 1000);
       })
       .catch((error) => toast.error("Pop up closed by user"))
       .finally(() => setLoading(false));
