@@ -2,14 +2,10 @@ import { useState } from "react";
 import logo from "../assets/jira-logo.png";
 import horizontalLogo from "../assets/Atlassian logo neutral RGB 2x.png";
 import { app } from "../firebase/firebase";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth";
+import {getAuth,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,} from "firebase/auth";
 import { NavLink, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"
+import {getFirebaseErrorMessage} from  "../utils/utils"
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -28,9 +24,10 @@ const Signup = () => {
       toast.success("Signup successful!");
       setEmail("");
       setPassword("");
-      setTimeout(() => navigate("/dashboard"), 1000);
+      setTimeout(() => navigate("/Project"), 1000);
     } catch (err) {
-      toast.error(err.message);
+      const Message = getFirebaseErrorMessage(err.code)
+      toast.error(Message);
     } finally {
       setLoading(false);
     }
@@ -41,7 +38,7 @@ const Signup = () => {
     try {
       await signInWithPopup(auth, provider);
       toast.success("Signed up successfully with Google!");
-      setTimeout(() => navigate("/dashboard"), 1000);
+      setTimeout(() => navigate("/Project"), 1000);
     } catch (error) {
       toast.error(error.message);
     } finally {

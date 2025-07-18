@@ -1,9 +1,15 @@
 import { useState } from "react";
 import Bg from "../assets/background.png";
 import { app } from "../firebase/firebase";
-import {getAuth,signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup} from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {getFirebaseErrorMessage} from  "../utils/utils"
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -14,16 +20,23 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const logIn = (e) => {
+  const logIn = async (e) => {
     e.preventDefault();
     setLoading(true);
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        toast.success("Login successful!");
-        setTimeout(() => navigate("/Project"), 1000);
-      })
-      .catch((err) => toast.error("wrong Id/Password"))
-      .finally(() => setLoading(false));
+
+    try{
+       await signInWithEmailAndPassword(auth, email, password)
+      toast.success("Login successful!");
+      setTimeout(() => navigate("/Project"), 1000);
+      }catch (err) {
+        console.error("Full Firebase error:", err);
+  console.error("Error code:", err.code);
+      const Message = getFirebaseErrorMessage(err.code)
+      console.log("Resolved error message:", Message)
+      toast.error(Message);
+      }finally {
+      setLoading(false);
+    }
   };
 
   const loginWithGoogle = () => {
