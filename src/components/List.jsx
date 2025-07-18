@@ -51,7 +51,7 @@ const List = () => {
             </thead>
             <tbody>
                 {tasks.map((task) =>(
-                    <tr key = {task.id}>
+                    <tr key = {task.id} className="bg-white">
                     
                     <td className=" border px-3 py-2">{task.Summary}</td>
                     <td className=" border px-3 py-2">{task.Status}</td>

@@ -6,7 +6,7 @@ const Navbar = () => {
 
     <div className='w-full'>
       {/* Top Navbar */}
-        <div className=' border-b border-gray-300 h-12 w-full flex justify-around items-center'>
+        <div className=' border-b border-gray-300 h-12 w-full flex justify-around items-center bg-white'>
             <h1>Jira-logo</h1>
             <div className='h-[100%] flex gap-10 items-center'>
             <input 
