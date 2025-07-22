@@ -1,26 +1,45 @@
 import { useState } from "react";
 import logo from "../assets/jira-logo.png";
 import horizontalLogo from "../assets/Atlassian logo neutral RGB 2x.png";
-import { app } from "../firebase/firebase";
-import {getAuth,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,} from "firebase/auth";
+
+import {createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,updateProfile} from "firebase/auth";
+import {setDoc,doc } from "firebase/firestore";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify"
 import {getFirebaseErrorMessage} from  "../utils/utils"
+import  {auth, db} from "../firebase/firebase"
 
-const auth = getAuth(app);
+
+
 const provider = new GoogleAuthProvider();
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
 
   const signupUser = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+
+       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+       const user = userCredential.user
+
+
+      // set userName
+      await updateProfile(user,{displayName: fullName})
+
+      // Save to fireStore
+      await setDoc(doc(db,"users", user.uid),{
+        uid: user.uid,fullName,
+        email:user.email,
+        createdAt:new Date()
+      })
+
+
       toast.success("Signup successful!");
       setEmail("");
       setPassword("");
@@ -36,7 +55,17 @@ const Signup = () => {
   const signupWithGoogle = async () => {
     setLoading(true);
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user =result.user
+
+      // Save Google user to Firestore if new
+      await setDoc(doc(db, "user", user.uid), {
+      uid: user.uid,
+      fullName: user.displayName,
+      email: user.email,
+      createdAt: new Date(),
+});
+
       toast.success("Signed up successfully with Google!");
       setTimeout(() => navigate("/Project"), 1000);
     } catch (error) {
@@ -63,9 +92,30 @@ const Signup = () => {
         className="w-full max-w-md bg-white rounded-lg shadow-xl p-8 space-y-6"
       >
         <h1 className="text-2xl font-bold text-center">
-          Get started with Jira
+          Get started with Jira-lite
         </h1>
 
+          {/* Full Name */}
+
+        <div className="flex flex-col gap-2">
+          <label 
+          htmlFor="fullName" 
+          className="text-sm font-medium">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="fullName"
+            placeholder="Enter your full name"
+            value={fullName}
+            required
+            disabled={loading}
+            onChange={(e) => setFullName(e.target.value)}
+            className="bg-gray-100 p-3 rounded-md outline-none ring-2 ring-gray-300 focus:ring-gray-600 duration-200"
+          />
+        </div>
+
+        {/* Email */}
         <div className="flex flex-col gap-2">
           <label htmlFor="email" className="text-sm font-medium">
             Work email
@@ -76,7 +126,8 @@ const Signup = () => {
             placeholder="your@email.com"
             value={email}
             required
-            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            onChange={(e) => setEmail(e.target.value.trimStart())}
             className="bg-gray-100 p-3 rounded-md outline-none ring-2 ring-gray-300 focus:ring-gray-600 duration-200"
           />
         </div>
@@ -91,6 +142,7 @@ const Signup = () => {
             placeholder="Password"
             value={password}
             required
+            disabled={loading}
             onChange={(e) => setPassword(e.target.value)}
             className="bg-gray-100 p-3 rounded-md outline-none ring-2 ring-gray-300 focus:ring-gray-600 duration-200"
           />
@@ -108,6 +160,8 @@ const Signup = () => {
 
         <div className="text-center text-gray-500 font-semibold">— OR —</div>
 
+
+{/* google sign up */}
         <button
           type="button"
           onClick={signupWithGoogle}

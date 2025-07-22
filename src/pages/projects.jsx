@@ -3,10 +3,10 @@ import List from "../components/List"
 
 const projects = () => {
   return (
-    <div className="flex flex-col h-[100vh] bg-purple-100 ">
+    <div className=" h-[100vh] bg-purple-50 ">
     
-    <Navbar/>
-     <div className="mt-10 px-4">
+     <Navbar/>
+      <div className="min-h-screen mt-30 p-6">
       <List/>
      </div>
     </div>

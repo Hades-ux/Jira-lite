@@ -1,7 +1,7 @@
-const Button = ({lable,icon , onclick}) => {
+const Button = ({lable,icon , onClick}) => {
   return (
    <button
-   onclick = {onclick}
+   onClick = {onClick}
    className='flex items-center gap-2 text-gray-700 font-semibold p-3 cursor-pointer hover:scale-105'>
     {icon && <span>{icon}</span>}
     <span>{lable}</span>
